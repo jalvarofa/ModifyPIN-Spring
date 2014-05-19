@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+       
+       <context:property-placeholder location="classpath*:card.properties" system-properties-mode="OVERRIDE" ignore-unresolvable="true"/>
+  
+       <bean id="card" class="es.unileon.ulebank.payments.CreditCard">
+       		<property name="pinSize"> <value type="int">${pin_size}</value></property>
+       		<constructor-arg>
+       			<ref bean="handler"/>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<ref bean="client"/>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<ref bean="account"/>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<value type="java.lang.Double">${buy_limit_diary}</value>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<value type="java.lang.Double">${buy_limit_monthly}</value>
+       		</constructor-arg>
+       		<constructor-arg value="100.00"/>
+       		<constructor-arg value="1000.00"/>
+			<constructor-arg value="0.0"/>
+			<constructor-arg value="0.0"/>
+			<constructor-arg value="0.0"/>
+       </bean>
+       
+       <bean id="handler" class="es.unileon.ulebank.handler.CardHandler">
+       		<constructor-arg>
+       			<ref bean="bankHandler"/>
+       		</constructor-arg>
+			<constructor-arg value="01" />
+       		<constructor-arg value="123456789"/>
+       </bean>
+
+       <bean id="client" class="es.unileon.ulebank.client.Client">
+       		<constructor-arg>
+       			<ref bean="dniClient"/>
+       		</constructor-arg>
+    		<constructor-arg value="27"/>
+       </bean>
+
+       <bean id="account" class="es.unileon.ulebank.account.Account">
+       		<constructor-arg>
+       			<ref bean="bankId"/>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<ref bean="officeId"/>
+       		</constructor-arg>
+       		<constructor-arg value="0000000000"/>
+       </bean>
+       
+       <bean id="comissionEmission" class="es.unileon.ulebank.fees.LinearFee">
+			<constructor-arg value="0"/>
+			<constructor-arg value="0"/>
+       </bean>     
+       
+       <bean id="comissionMaintenance" class="es.unileon.ulebank.fees.LinearFee">
+			<constructor-arg value="0"/>
+			<constructor-arg value="0"/>
+       </bean>   
+
+       <bean id="comissionRenovate" class="es.unileon.ulebank.fees.LinearFee">
+			<constructor-arg value="0"/>
+			<constructor-arg value="0"/>
+       </bean>       
+ 
+        <bean id="bankId" class="es.unileon.ulebank.bank.Bank">
+       		<constructor-arg>
+       			<ref bean="manager"/>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<ref bean="genericHandler"/>
+       		</constructor-arg>
+       </bean> 
+
+       <bean id="officeId" class="es.unileon.ulebank.office.Office">
+       		<constructor-arg>
+       			<ref bean="genericHandler"/>
+       		</constructor-arg>
+       		<constructor-arg>
+       			<ref bean="bankId"/>
+       		</constructor-arg>
+       </bean>
+       
+       <bean id="bankHandler" class="es.unileon.ulebank.bank.BankHandler">
+ 			<constructor-arg value="1234"/>
+       </bean> 
+       
+       <bean id="manager" class="es.unileon.ulebank.transactionManager.TransactionManager">
+       </bean> 
+
+       <bean id="genericHandler" class="es.unileon.ulebank.handler.GenericHandler">
+			<constructor-arg value="1234"/>
+       </bean> 
+       
+       <bean id="dniClient" class="es.unileon.ulebank.handler.DNIHandler">
+			<constructor-arg value="714551559N"/>
+       </bean>  
+                    
+       <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+         <property name="basename" value="messages"/>
+       </bean>
+
+       <!-- Scans the classpath of this application for @Components to deploy as beans -->
+       <context:component-scan base-package="es.payments.bankapp.web" />
+
+       <!-- Configures the @Controller programming model -->
+       <mvc:annotation-driven/>
+       
+       <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+         <property name="prefix" value="/WEB-INF/views/"></property>
+         <property name="suffix" value=".jsp"></property>        
+       </bean>
+
+</beans>
