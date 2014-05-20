@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -83,9 +84,9 @@ public class CardControllerTests {
         
         assertNotNull(modelAndView.getModel());
         
-        Card modelMap = (Card) modelAndView.getModel().get("card");
-        String cardValue = modelMap.getCardId();
-        assertNotNull(cardValue);
+        CardBean bean = (CardBean) modelAndView.getModel().get("card");
+        String pinValue = bean.getPin();
+        assertNotNull(pinValue);
 	}
 	
 	@Test (expected = NullPointerException.class)
@@ -95,6 +96,7 @@ public class CardControllerTests {
         ModelAndView modelAndView = controller.showModifyPinGet();
 	}
 
+	//No funciona por el null que se le pasa por parametro al modelAndView ya que no podemos crear un bindinResult
 	@Test
 	public void testShowModifyPinPostOk() {
 		CardController controller = new CardController(new PinValidator());
