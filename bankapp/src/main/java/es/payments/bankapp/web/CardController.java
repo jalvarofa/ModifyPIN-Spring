@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,14 +23,34 @@ import org.springframework.web.servlet.ModelAndView;
 import es.unileon.ulebank.command.ModifyPinCommand;
 import es.unileon.ulebank.domain.CardBean;
 import es.unileon.ulebank.payments.Card;
+import es.unileon.ulebank.validator.PinValidator;
 
 @Controller
 public class CardController {
 
+	/**
+	 * Logger de la clase
+	 */
     protected final Log logger = LogFactory.getLog(getClass());
+    
+    /**
+     * Validador para el formilario del cambio de PIN
+     */
+    private PinValidator pinValidator;
     
     @Autowired
     private Card card;
+    
+	/**
+	 * Crea un nuevo controlador recibiendo por parametros el validador de la clase y las propiedades
+	 * de la tarjeta
+	 * @param cardValidator
+	 * @param properties
+	 */
+	@Autowired
+	public CardController(PinValidator pinValidator) {
+		this.pinValidator = pinValidator;
+	}
 
     /**
      * Metodo que genera y devuelve la vista de showCard donde mostraremos los datos de la 
@@ -61,12 +82,19 @@ public class CardController {
      * hayan realizado modificacion
      */
     @RequestMapping(value="/modifyPIN.htm", method = RequestMethod.POST)
-    public ModelAndView showModifyPinPost(@ModelAttribute("card") CardBean bean) {
-    	ModifyPinCommand command = new ModifyPinCommand(card, bean.getPin());
+    public ModelAndView showModifyPinPost(@ModelAttribute("card") CardBean bean, BindingResult result) {
+    	bean.setPin(card.getPin());
+    	this.pinValidator.validate(bean, result);
+    	
+    	if (result.hasErrors()) {
+			return new ModelAndView("modifyPIN", "card", bean);
+		}
+    	
+    	ModifyPinCommand command = new ModifyPinCommand(card, bean.getNewPin());
     	try {
 			command.execute();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info(e.getMessage());
 		}
     	
     	return new ModelAndView("showCard", "model", card);
@@ -80,7 +108,9 @@ public class CardController {
     @RequestMapping(value="/modifyPIN.htm", method = RequestMethod.GET)
     public ModelAndView showModifyPinGet() {
     	
-    	return new ModelAndView("modifyPIN", "card", card);
+    	CardBean bean = new CardBean();
+    	bean.setPin(card.getPin());
+		return new ModelAndView("modifyPIN", "card", bean );
     }
 
     /**

@@ -28,6 +28,7 @@ import es.unileon.ulebank.office.Office;
 import es.unileon.ulebank.payments.Card;
 import es.unileon.ulebank.payments.CreditCard;
 import es.unileon.ulebank.transactionManager.TransactionManager;
+import es.unileon.ulebank.validator.PinValidator;
 
 public class CardControllerTests {
 	
@@ -54,7 +55,7 @@ public class CardControllerTests {
 
     @Test
     public void testShowCardViewOk() throws Exception{		
-        CardController controller = new CardController();
+        CardController controller = new CardController(new PinValidator());
         controller.setCard(testCard);
         ModelAndView modelAndView = controller.showCardView(null, null);
         assertEquals("showCard", modelAndView.getViewName());
@@ -68,14 +69,14 @@ public class CardControllerTests {
     @Test (expected = NullPointerException.class)
     public void testShowCardViewFail() throws Exception{
     	testCard = null;
-        CardController controller = new CardController();
+        CardController controller = new CardController(new PinValidator());
         controller.setCard(testCard);
         ModelAndView modelAndView = controller.showCardView(null, null);
     }
 
 	@Test
 	public void testShowModifyPinGetOk() {
-		CardController controller = new CardController();
+		CardController controller = new CardController(new PinValidator());
         controller.setCard(testCard);
         ModelAndView modelAndView = controller.showModifyPinGet();
         assertEquals("modifyPIN", modelAndView.getViewName());
@@ -96,11 +97,11 @@ public class CardControllerTests {
 
 	@Test
 	public void testShowModifyPinPostOk() {
-		CardController controller = new CardController();
+		CardController controller = new CardController(new PinValidator());
         controller.setCard(testCard);
         CardBean cardBean = new CardBean();
         cardBean.setPin(testCard.getPin());
-        ModelAndView modelAndView = controller.showModifyPinPost(cardBean);
+        ModelAndView modelAndView = controller.showModifyPinPost(cardBean, null);
         
         assertEquals("showCard", modelAndView.getViewName());
         
@@ -120,7 +121,7 @@ public class CardControllerTests {
 
 	@Test
 	public void testGetCard() {
-		CardController controller = new CardController();
+		CardController controller = new CardController(new PinValidator());
         controller.setCard(testCard);
         
         assertEquals("1234 0112 3456 789"+handler.getControlDigit(), controller.getCard().getCardId());
@@ -129,7 +130,7 @@ public class CardControllerTests {
 	@Test
 	public void testSetCard() throws IncorrectLimitException {
 		testCard.setBuyLimitDiary(500.00);
-		CardController controller = new CardController();
+		CardController controller = new CardController(new PinValidator());
         controller.setCard(testCard);
         assertEquals(500.00, controller.getCard().getBuyLimitDiary(),0.0001);
         

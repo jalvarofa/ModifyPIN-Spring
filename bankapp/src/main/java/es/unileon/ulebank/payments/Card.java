@@ -292,8 +292,6 @@ public abstract class Card {
 	public void setPin(String pin) throws IOException {
 		//Comprobamos que el String recibido contiene solo numeros
 		if (checkStringNumber(pin)) {
-			System.out.println(pin.length());
-			System.out.println(pinSize);
 			//Si el pin tiene el tamagno adecuado lo cambiamos
 			if (pin.length() == pinSize) {
 				this.pin = pin;
