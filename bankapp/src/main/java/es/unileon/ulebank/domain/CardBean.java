@@ -8,7 +8,6 @@ public class CardBean {
 	}
 
 	public void setPin(String pin) {
-		System.out.println("------->" + pin);
 		this.pin = pin;
 	}
 }

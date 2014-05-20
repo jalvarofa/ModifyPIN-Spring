@@ -31,8 +31,17 @@ public class CardController {
     @Autowired
     private Card card;
 
+    /**
+     * Metodo que genera y devuelve la vista de showCard donde mostraremos los datos de la 
+     * tarjeta del cliente
+     * @param request
+     * @param response
+     * @return la vista showCard en la que se mustran los datos de la tarjeta
+     * @throws ServletException
+     * @throws IOException
+     */
     @RequestMapping(value="/showCard.htm")
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+    public ModelAndView showCardView(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Map<String, Object> myModel = new HashMap<String, Object>();
         myModel.put("cardNumber", this.card.getCardNumber());
@@ -41,13 +50,18 @@ public class CardController {
         myModel.put("expirationDate", this.card.getExpirationDate());
         myModel.put("buyLimitDiary",this.card.getBuyLimitDiary());
 
-        
         return new ModelAndView("showCard", "model", myModel);
     }
     
+    /**
+     * Metodo que llama al comando para cambiar el PIN de la tarjeta y despues devuelve
+     * la vista showCard pasandole los datos de la tarjeta con el PIN modificado
+     * @param bean
+     * @return la vista showCard con los nuevos datos de la tarjeta en caso de que se
+     * hayan realizado modificacion
+     */
     @RequestMapping(value="/modifyPIN.htm", method = RequestMethod.POST)
-    public ModelAndView handleRequest(@ModelAttribute("card") CardBean bean) {
-    	System.out.println("********" + bean.getPin());
+    public ModelAndView showModifyPinPost(@ModelAttribute("card") CardBean bean) {
     	ModifyPinCommand command = new ModifyPinCommand(card, bean.getPin());
     	try {
 			command.execute();
@@ -58,14 +72,26 @@ public class CardController {
     	return new ModelAndView("showCard", "model", card);
     }
     
+    /**
+     * Metodo que devuelve la vista de modifyPIN pasandole la tarjeta para poder tener
+     * acceso a esta y modificar el pin
+     * @return la vista modifyPin con el PIN viejo y la opcion de cambiarlo
+     */
     @RequestMapping(value="/modifyPIN.htm", method = RequestMethod.GET)
-    public ModelAndView init() {
+    public ModelAndView showModifyPinGet() {
     	
     	return new ModelAndView("modifyPIN", "card", card);
     }
 
-
+    /**
+     * Metodo que asigna a nuestra tarjeta una tarjeta pasada por parametro
+     * @param card
+     */
     public void setCard(Card card) {
         this.card = card;
+    }
+    
+    public Card getCard(){
+    	return this.card;
     }
 }
