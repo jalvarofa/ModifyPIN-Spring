@@ -1,17 +1,12 @@
-package es.payments.bankapp.web;
+package es.unileon.ulebank.web;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Map;
-
-import javax.validation.constraints.Null;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
 import es.unileon.ulebank.account.Account;
@@ -28,36 +23,37 @@ import es.unileon.ulebank.handler.GenericHandler;
 import es.unileon.ulebank.office.Office;
 import es.unileon.ulebank.payments.Card;
 import es.unileon.ulebank.payments.CreditCard;
-import es.unileon.ulebank.transactionManager.TransactionManager;
+import es.unileon.ulebank.repository.InMemoryCardDao;
+import es.unileon.ulebank.service.SimpleCardManager;
 import es.unileon.ulebank.validator.PinValidator;
+import es.unileon.ulebank.web.CardController;
 
 public class CardControllerTests {
 	
 	CreditCard testCard;
 	CardHandler handler;
-	private Office office;
 	private Bank bank;
-	private TransactionManager manager;
-    private String accountNumber = "0000000000";
+    private String accountNumber = "00000000001111111111";
 	
 	@Before
 	public void setUp() throws Exception {
-		this.manager = new TransactionManager();
-        this.bank = new Bank(manager, new GenericHandler("1234"));
-        this.office = new Office(new GenericHandler("1234"), this.bank);
-		handler = new CardHandler(new BankHandler("1234"), "01", "123456789");
-		Client client = new Client(new DNIHandler("71451559N"), 27);
-		Account account = new Account(office, bank, accountNumber);
+        this.bank = new Bank("1234");
+		Client client = new Client("71451559N", 27);
+		Account account = new Account(accountNumber);
 		FeeStrategy commissionEmission = new LinearFee(0, 25);
 		FeeStrategy commissionMaintenance = new LinearFee(0, 0);
 		FeeStrategy commissionRenovate = new LinearFee(0, 0);
-		testCard = new CreditCard(handler, client, account, 400.0, 1000.0, 400.0, 1000.0, commissionEmission.getFee(0), commissionMaintenance.getFee(0), commissionRenovate.getFee(0));
+		testCard = new CreditCard("1234 0112 3456 7890", client, account, 400.0, 1000.0, 400.0, 1000.0, commissionEmission.getFee(0), commissionMaintenance.getFee(0), commissionRenovate.getFee(0));
 	}
 
     @Test
     public void testShowCardViewOk() throws Exception{		
-        CardController controller = new CardController(new PinValidator());
+        CardController controller = new CardController();
         controller.setCard(testCard);
+        SimpleCardManager scm = new SimpleCardManager();
+        scm.setCardDao(new InMemoryCardDao(new ArrayList<Card>()));
+        controller.setCardManager(scm);
+        //controller.setProductManager(new SimpleProductManager());
         ModelAndView modelAndView = controller.showCardView(null, null);
         assertEquals("showCard", modelAndView.getViewName());
         assertNotNull(modelAndView.getModel());
@@ -70,14 +66,14 @@ public class CardControllerTests {
     @Test (expected = NullPointerException.class)
     public void testShowCardViewFail() throws Exception{
     	testCard = null;
-        CardController controller = new CardController(new PinValidator());
+        CardController controller = new CardController();
         controller.setCard(testCard);
         ModelAndView modelAndView = controller.showCardView(null, null);
     }
 
 	@Test
 	public void testShowModifyPinGetOk() {
-		CardController controller = new CardController(new PinValidator());
+		CardController controller = new CardController();
         controller.setCard(testCard);
         ModelAndView modelAndView = controller.showModifyPinGet();
         assertEquals("modifyPIN", modelAndView.getViewName());
@@ -99,7 +95,7 @@ public class CardControllerTests {
 	//No funciona por el null que se le pasa por parametro al modelAndView ya que no podemos crear un bindinResult
 	@Test
 	public void testShowModifyPinPostOk() {
-		CardController controller = new CardController(new PinValidator());
+		CardController controller = new CardController();
         controller.setCard(testCard);
         CardBean cardBean = new CardBean();
         cardBean.setPin(testCard.getPin());
@@ -123,16 +119,16 @@ public class CardControllerTests {
 
 	@Test
 	public void testGetCard() {
-		CardController controller = new CardController(new PinValidator());
+		CardController controller = new CardController();
         controller.setCard(testCard);
         
-        assertEquals("1234 0112 3456 789"+handler.getControlDigit(), controller.getCard().getCardId());
+        assertEquals("1234 0112 3456 7890", controller.getCard().getCardId());
 	}
 	
 	@Test
 	public void testSetCard() throws IncorrectLimitException {
 		testCard.setBuyLimitDiary(500.00);
-		CardController controller = new CardController(new PinValidator());
+		CardController controller = new CardController();
         controller.setCard(testCard);
         assertEquals(500.00, controller.getCard().getBuyLimitDiary(),0.0001);
         

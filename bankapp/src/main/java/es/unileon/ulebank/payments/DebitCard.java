@@ -1,32 +1,37 @@
 package es.unileon.ulebank.payments;
 
 import java.io.IOException;
-import java.util.Date;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import es.unileon.ulebank.account.Account;
 import es.unileon.ulebank.client.Client;
 import es.unileon.ulebank.exceptions.CommissionException;
-import es.unileon.ulebank.exceptions.PaymentException;
-import es.unileon.ulebank.exceptions.TransactionException;
-import es.unileon.ulebank.fees.DebitMaintenanceFee;
 import es.unileon.ulebank.fees.InvalidFeeException;
-import es.unileon.ulebank.fees.LinearFee;
-import es.unileon.ulebank.handler.Handler;
-import es.unileon.ulebank.history.CardTransaction;
 
 /**
  * @author Israel, Rober dCR
  * Clase que representa una tarjeta de Debito
  */
+@Entity
+@Table(name="cards") 
 public class DebitCard extends Card {
 	
 	/**
 	 * Account associated to the Card
 	 */
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Account.class)
+	@JoinColumn(name = "account_id", referencedColumnName = "account_number")
 	private Account account;
 	/**
 	 * Card owner
 	 */
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Client.class)
+	@JoinColumn(name = "client_id", referencedColumnName = "client_id")
 	private Client owner;
 	
 	/**
@@ -46,17 +51,21 @@ public class DebitCard extends Card {
 	 * @throws IOException
 	 * @throws InvalidFeeException 
 	 */
-	public DebitCard(Handler cardId, Client owner, Account account,
+	public DebitCard(String cardId, Client owner, Account account,
 			double buyLimitDiary, double buyLimitMonthly, double cashLimitDiary, double cashLimitMonthly,
 			double commissionEmission, double commissionMaintenance, double commissionRenovate) throws NumberFormatException, CommissionException, IOException, InvalidFeeException {
-		super(cardId, CardType.DEBIT, buyLimitDiary, buyLimitMonthly, cashLimitDiary, cashLimitMonthly,
-				new LinearFee(0,commissionEmission), 
-				new DebitMaintenanceFee(owner, commissionMaintenance), 
-				new LinearFee(0,commissionRenovate));
+		super(cardId, CardType.DEBIT.toString(), buyLimitDiary, buyLimitMonthly, cashLimitDiary, cashLimitMonthly,
+				/*new LinearFee(0,commissionEmission),
+				new LinearFee(0,commissionMaintenance),
+				new LinearFee(0,commissionRenovate)*/
+				commissionEmission, commissionMaintenance, commissionRenovate);
 		this.account = account;
 		this.owner = owner;
 	}
 	
+	public DebitCard(){
+		super(CardType.DEBIT.toString());
+	}
 	/**
 	 * Method that makes the payment
 	 * @param receiverAccount Account which receives the money from the card
@@ -65,19 +74,19 @@ public class DebitCard extends Card {
 	 * @throws PaymentException
 	 * @throws es.unileon.ulebank.history.TransactionException 
 	 */
-	public void makeTransaction(Account receiverAccount, double quantity, String payConcept) throws PaymentException, TransactionException, es.unileon.ulebank.history.TransactionException{
-
-		try{
-			//Discount the quantity from sender account
-			this.account.doWithdrawal(new CardTransaction(quantity, new Date(), payConcept, this.account, receiverAccount));
-			//Add the money to receiver account
-			receiverAccount.doDeposit(new CardTransaction(quantity, new Date(), payConcept, this.account, receiverAccount));
-		}catch(TransactionException e){
-			e.printStackTrace();
-			throw new PaymentException("Denegate Transaction");
-		}
-		
-	}
+//	public void makeTransaction(Account receiverAccount, double quantity, String payConcept) throws PaymentException, TransactionException, es.unileon.ulebank.history.TransactionException{
+//
+//		try{
+//			//Discount the quantity from sender account
+//			this.account.doWithdrawal(new CardTransaction(quantity, new Date(), payConcept, this.account, receiverAccount));
+//			//Add the money to receiver account
+//			receiverAccount.doDeposit(new CardTransaction(quantity, new Date(), payConcept, this.account, receiverAccount));
+//		}catch(TransactionException e){
+//			e.printStackTrace();
+//			throw new PaymentException("Denegate Transaction");
+//		}
+//		
+//	}
 
 	/**
 	 * Devuelve el duegno de la tarjeta

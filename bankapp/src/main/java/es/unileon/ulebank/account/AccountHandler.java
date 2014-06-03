@@ -35,7 +35,7 @@ public class AccountHandler implements Handler {
      */
     private final static String SEPARATOR = "-";
 
-    private static Handler getField(Handler another, int number, String separator) throws MalformedHandlerException {
+    private static String getField(String another, int number, String separator) throws MalformedHandlerException {
 
         String[] splitHandler = null;
         StringBuilder error = new StringBuilder();
@@ -81,7 +81,7 @@ public class AccountHandler implements Handler {
         if (error.length() > 0) {
             throw new MalformedHandlerException(error.toString());
         }
-        return new GenericHandler(splitHandler[number]);
+        return splitHandler[number];
     }
 
     /**
@@ -131,11 +131,11 @@ public class AccountHandler implements Handler {
     /**
      * The office identifier
      */
-    private final Handler officeHandler;
+    private final String officeHandler;
     /**
      * The bank identifier
      */
-    private final Handler bankHandler;
+    private final String bankHandler;
     /**
      * The control digits
      */
@@ -151,7 +151,7 @@ public class AccountHandler implements Handler {
      * @throws MalformedHandlerException ( If the account number, office
      * handler, or bank handler aren't correct )
      */
-    public AccountHandler(Handler office, Handler bank, String accountNumber) throws MalformedHandlerException {
+    public AccountHandler(String office, String bank, String accountNumber) throws MalformedHandlerException {
         StringBuilder errors = new StringBuilder();
         Pattern numberPattern = Pattern.compile("^[0-9]*$");
         if (office != null && office.toString() != null && bank != null && bank.toString() != null && accountNumber != null) {
@@ -197,7 +197,7 @@ public class AccountHandler implements Handler {
      * @param another
      * @throws MalformedHandlerException
      */
-    public AccountHandler(Handler another) throws MalformedHandlerException {
+    public AccountHandler(String another) throws MalformedHandlerException {
         this(getField(another, 1, SEPARATOR), getField(another, 0, SEPARATOR), getField(another, 3, SEPARATOR).toString());
         StringBuilder error = new StringBuilder();
         if (!getField(another, 2, SEPARATOR).toString().equals(this.dc)) {
@@ -212,7 +212,7 @@ public class AccountHandler implements Handler {
      *
      * @return
      */
-    public Handler getBankHandler() {
+    public String getBankHandler() {
         return this.bankHandler;
     }
 
@@ -220,7 +220,7 @@ public class AccountHandler implements Handler {
      *
      * @return
      */
-    public Handler getOfficeHandler() {
+    public String getOfficeHandler() {
         return this.officeHandler;
     }
 

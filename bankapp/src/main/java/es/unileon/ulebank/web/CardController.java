@@ -1,4 +1,4 @@
-package es.payments.bankapp.web;
+package es.unileon.ulebank.web;
 
 import java.io.IOException;
 import java.util.Date;
@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -23,6 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 import es.unileon.ulebank.command.ModifyPinCommand;
 import es.unileon.ulebank.domain.CardBean;
 import es.unileon.ulebank.payments.Card;
+import es.unileon.ulebank.repository.CardDao;
+import es.unileon.ulebank.service.SimpleCardManager;
 import es.unileon.ulebank.validator.PinValidator;
 
 @Controller
@@ -36,10 +40,13 @@ public class CardController {
     /**
      * Validador para el formilario del cambio de PIN
      */
+    @Autowired
     private PinValidator pinValidator;
     
-    @Autowired
     private Card card;
+    
+    @Autowired
+    private SimpleCardManager cardManager;
     
 	/**
 	 * Crea un nuevo controlador recibiendo por parametros el validador de la clase y las propiedades
@@ -47,10 +54,10 @@ public class CardController {
 	 * @param cardValidator
 	 * @param properties
 	 */
-	@Autowired
-	public CardController(PinValidator pinValidator) {
-		this.pinValidator = pinValidator;
-	}
+	
+//	public CardController(PinValidator pinValidator) {
+//		this.pinValidator = pinValidator;
+//	}
 
     /**
      * Metodo que genera y devuelve la vista de showCard donde mostraremos los datos de la 
@@ -64,6 +71,8 @@ public class CardController {
     @RequestMapping(value="/showCard.htm")
     public ModelAndView showCardView(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	card = cardManager.getCard("1234011234567892");
+    	
         Map<String, Object> myModel = new HashMap<String, Object>();
         myModel.put("cardNumber", this.card.getCardNumber());
         //this.card.setPin(this.card.generatePinCode()); //genero el codigo pin y se lo asigno a la tarjeta porque no lee al principio del archivo properties
@@ -79,10 +88,11 @@ public class CardController {
      * la vista showCard pasandole los datos de la tarjeta con el PIN modificado
      * @param bean
      * @return la vista showCard con los nuevos datos de la tarjeta en caso de que se
-     * hayan realizado modificacion
+     * haya realizado modificacion
      */
     @RequestMapping(value="/modifyPIN.htm", method = RequestMethod.POST)
     public ModelAndView showModifyPinPost(@ModelAttribute("card") CardBean bean, BindingResult result) {
+//    	System.out.println("PIN DE TARJETA---->"+card.getPin());
     	bean.setPin(card.getPin());
     	this.pinValidator.validate(bean, result);
     	
@@ -93,6 +103,7 @@ public class CardController {
     	ModifyPinCommand command = new ModifyPinCommand(card, bean.getNewPin());
     	try {
 			command.execute();
+			cardManager.modifyPin(card);
 		} catch (IOException e) {
 			logger.info(e.getMessage());
 		}
@@ -124,4 +135,9 @@ public class CardController {
     public Card getCard(){
     	return this.card;
     }
+
+	public void setCardManager(SimpleCardManager scm) {
+		// TODO Auto-generated method stub
+		
+	}
 }

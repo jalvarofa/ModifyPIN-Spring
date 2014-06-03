@@ -1,30 +1,33 @@
 package es.unileon.ulebank.payments;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import es.unileon.ulebank.account.Account;
 import es.unileon.ulebank.client.Client;
 import es.unileon.ulebank.exceptions.CommissionException;
-import es.unileon.ulebank.exceptions.PaymentException;
-import es.unileon.ulebank.exceptions.TransactionException;
 import es.unileon.ulebank.fees.InvalidFeeException;
-import es.unileon.ulebank.fees.LinearFee;
-import es.unileon.ulebank.handler.Handler;
-import es.unileon.ulebank.taskList.TaskList;
-import es.unileon.ulebank.history.CardTransaction;
 
 /**
  * @author Israel, Rober dCR
  * Clase que representa la tarjeta de credito
  */
+@Entity
+@Table(name="cards") 
 public class CreditCard extends Card {
 	
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Account.class)
+	@JoinColumn(name = "account_id", referencedColumnName = "account_number")
 	private Account account;
+	
+	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Client.class)
+	@JoinColumn(name = "client_id", referencedColumnName = "client_id")
 	private Client owner;
-	private List<CardTransaction> transactionList;
-	private TaskList transactionTask;
+	//private List<CardTransaction> transactionList;
+	//private TaskList transactionTask;
 	
 	/**
 	 * Constructor de la clase
@@ -41,16 +44,21 @@ public class CreditCard extends Card {
 	 * @throws CommissionException
 	 * @throws InvalidFeeException 
 	 */
-	public CreditCard(Handler cardId, Client owner, Account account, double buyLimitDiary, double buyLimitMonthly, 
+	public CreditCard(String cardId, Client owner, Account account, double buyLimitDiary, double buyLimitMonthly, 
 			double cashLimitDiary, double cashLimitMonthly, double commissionEmission, 
 			double commissionMaintenance, double commissionRenovate) throws CommissionException, InvalidFeeException {
-		super(cardId, CardType.CREDIT, buyLimitDiary, buyLimitMonthly, cashLimitDiary, cashLimitMonthly,
-				new LinearFee(0,commissionEmission),
+		super(cardId, CardType.CREDIT.toString(), buyLimitDiary, buyLimitMonthly, cashLimitDiary, cashLimitMonthly,
+				/*new LinearFee(0,commissionEmission),
 				new LinearFee(0,commissionMaintenance),
-				new LinearFee(0,commissionRenovate));
+				new LinearFee(0,commissionRenovate)*/
+				commissionEmission, commissionMaintenance, commissionRenovate);
 		this.account = account;
 		this.owner = owner;
-		this.transactionList = new ArrayList<CardTransaction>();
+		//this.transactionList = new ArrayList<CardTransaction>();
+	}
+	
+	public CreditCard(){
+		super(CardType.CREDIT.toString());
 	}
 		
 	/**
@@ -61,13 +69,13 @@ public class CreditCard extends Card {
 	 * @throws PaymentException 
 	 * @throws es.unileon.ulebank.history.TransactionException 
 	 */
-	public void makeTransaction(Account receiverAccount, double quantity, String payConcept) throws PaymentException, TransactionException, es.unileon.ulebank.history.TransactionException{
-		//TODO - Actualizar con las nuevas transacciones
-		//A�adimos la transaccion a la lista
-		this.transactionList.add(new CardTransaction(quantity, new Date(), payConcept, receiverAccount, this.account));
-		//LLegada la fecha hay que descontar el dinero de la cuenta
-		//Pagar los importes a la cuenta
-	}
+//	public void makeTransaction(Account receiverAccount, double quantity, String payConcept) throws PaymentException, TransactionException, es.unileon.ulebank.history.TransactionException{
+//		//TODO - Actualizar con las nuevas transacciones
+//		//A���adimos la transaccion a la lista
+//		this.transactionList.add(new CardTransaction(quantity, new Date(), payConcept, receiverAccount, this.account));
+//		//LLegada la fecha hay que descontar el dinero de la cuenta
+//		//Pagar los importes a la cuenta
+//	}
 	
 	/**
 	 * Devuelve el duegno de la tarjeta
@@ -75,5 +83,9 @@ public class CreditCard extends Card {
 	 */
 	public Client getOwner() {
 		return owner;
+	}
+	
+	public Account getAccount() {
+		return this.account;
 	}
 }

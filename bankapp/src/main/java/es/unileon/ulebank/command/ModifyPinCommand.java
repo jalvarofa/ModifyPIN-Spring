@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import es.unileon.ulebank.handler.CommandHandler;
 import es.unileon.ulebank.handler.Handler;
 import es.unileon.ulebank.payments.Card;
-
 /**
  * @author Israel
  * Comando para modificar el codigo PIN de la tarjeta
@@ -33,9 +32,11 @@ public class ModifyPinCommand implements Command {
 	 * PIN antes de modificarlo
 	 */
 	private String oldPin;
+//	private SimpleCardManager cM;
 	
 	/**
 	 * Constructor de la clase
+	 * @param cardManager 
 	 * @param cardId
 	 * @param newPin
 	 */
@@ -43,6 +44,7 @@ public class ModifyPinCommand implements Command {
 		this.id = new CommandHandler(card.getCardNumber());
 		this.card = card;
 		this.newPin = pin;
+//		this.cM = cardManager;
 	}
 	
 	/**

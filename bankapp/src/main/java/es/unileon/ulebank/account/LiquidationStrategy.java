@@ -29,5 +29,5 @@ public interface LiquidationStrategy {
      *
      * @return (the id)
      */
-    public Handler getID();
+    public String getID();
 }

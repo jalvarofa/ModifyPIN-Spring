@@ -43,7 +43,7 @@ public class Office {
     /**
      *
      */
-    private final Handler id;
+    private final String id;
     /**
      *
      */
@@ -89,7 +89,7 @@ public class Office {
      * @param id
      * @param bank
      */
-    public Office(Handler id, Bank bank) {
+    public Office(String id, Bank bank) {
         this.accounts = new ArrayList<Account>();
         this.clients = new ArrayList<Client>();
         this.id = id;
@@ -145,7 +145,7 @@ public class Office {
      * @param id
      * @return
      */
-    public synchronized boolean deleteClient(Handler id) {
+    public synchronized boolean deleteClient(String id) {
         int i = 0;
         boolean found = false;
         while (i < this.clients.size() && !found) {
@@ -164,7 +164,7 @@ public class Office {
      * @param id
      * @return
      */
-    public synchronized boolean deleteAccount(Handler id) {
+    public synchronized boolean deleteAccount(String id) {
         int i = 0;
         boolean found = false;
         while (i < this.accounts.size() && !found) {
@@ -189,7 +189,7 @@ public class Office {
      *
      * @return
      */
-    public Handler getIdOffice() {
+    public String getIdOffice() {
         return this.id;
     }
 
@@ -200,36 +200,36 @@ public class Office {
      * @throws TransactionException
      * @throws MalformedHandlerException
      */
-    public void doTransaction(Transaction t, Handler destine) throws TransactionException, MalformedHandlerException {
-        boolean finish = false;
-        StringBuilder error = new StringBuilder();
-        if (t != null && destine != null) {
-            AccountHandler handler = new AccountHandler(destine);
-            if (handler.getBankHandler().compareTo(this.bank.getID()) == 0 && handler.getOfficeHandler().compareTo(this.id) == 0) {
-                for (int i = 0; i < accounts.size() && !finish; i++) {
-                    if (accounts.get(i).getID().compareTo(destine) == 0) {
-                        if (t.getType() == TransactionType.CHARGE) {
-                            accounts.get(i).doWithdrawal(t);
-                        } else if (t.getType() == TransactionType.PAYMENT) {
-                            accounts.get(i).doDeposit(t);
-                        } else {
-                            error.append("Error, transaction not supported ").append(t.getType()).append("\n");
-                        }
-                        finish = true;
-                    }
-                }
-            } else {
-                this.bank.doTransaction(t, destine);
-            }
-        } else {
-            error.append(("The transaction cannot be null or destination be null"));
-        }
-
-        if (error.length() > 0) {
-            LOG.error("Office id " + this.id + " error : " + error.toString());
-            throw new TransactionException(error.toString());
-        }
-    }
+//    public void doTransaction(Transaction t, String destine) throws TransactionException, MalformedHandlerException {
+//        boolean finish = false;
+//        StringBuilder error = new StringBuilder();
+//        if (t != null && destine != null) {
+//            AccountHandler handler = new AccountHandler(destine);
+//            if (handler.getBankHandler().compareTo(this.bank.getID()) == 0 && handler.getOfficeHandler().compareTo(this.id) == 0) {
+//                for (int i = 0; i < accounts.size() && !finish; i++) {
+//                    if (accounts.get(i).getID().compareTo(destine) == 0) {
+//                        if (t.getType() == TransactionType.CHARGE) {
+//                            accounts.get(i).doWithdrawal(t);
+//                        } else if (t.getType() == TransactionType.PAYMENT) {
+//                            accounts.get(i).doDeposit(t);
+//                        } else {
+//                            error.append("Error, transaction not supported ").append(t.getType()).append("\n");
+//                        }
+//                        finish = true;
+//                    }
+//                }
+//            } else {
+//                this.bank.doTransaction(t, destine);
+//            }
+//        } else {
+//            error.append(("The transaction cannot be null or destination be null"));
+//        }
+//
+//        if (error.length() > 0) {
+//            LOG.error("Office id " + this.id + " error : " + error.toString());
+//            throw new TransactionException(error.toString());
+//        }
+//    }
 
     /**
      *
@@ -346,7 +346,7 @@ public class Office {
 	 * @return
 	 * @throws ClientNotFoundException 
 	 */
-	public Client searchClient(DNIHandler dni) throws ClientNotFoundException {
+	public Client searchClient(String dni) throws ClientNotFoundException {
 		//Creamos un iterador para recorrer la lista
 		Iterator<Client> iterator = clients.iterator();
 		Client client = null;

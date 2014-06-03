@@ -12,14 +12,14 @@ import java.util.Date;
  */
 public class CommandHandler implements Handler {
 
-	private Handler id;
+	private String id;
 	private String date;
 	
 	/**
 	 * Class constructor
 	 * @param id
 	 */
-	public CommandHandler(Handler id){
+	public CommandHandler(String id){
 		this.id = id;
 		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyyHHmmss");
 		this.date = dateFormat.format(new Date());
@@ -34,7 +34,7 @@ public class CommandHandler implements Handler {
 	 * Getter id
 	 * @return id
 	 */
-	public Handler getId(){
+	public String getId(){
 		return this.id;
 	}
 
