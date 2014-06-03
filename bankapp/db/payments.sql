@@ -20,13 +20,13 @@ CREATE TABLE cards (
   cvv VarChar(3),
   commissionEmission DOUBLE,
   commissionMaintenance DOUBLE,
-  comissionRenovate DOUBLE
+  commissionRenovate DOUBLE
 );
 
 CREATE TABLE accounts (
   id_office VarChar(4) REFERENCES office(id_office),
   id_bank VarChar(4) REFERENCES bank(id_bank),
-  account_number VarChar(10),
+  account_number VarChar(20),
   CONSTRAINT pk_account PRIMARY KEY (id_office, id_bank, account_number)
 );
 
