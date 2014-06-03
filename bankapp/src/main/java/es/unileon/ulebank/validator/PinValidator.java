@@ -16,8 +16,8 @@ public class PinValidator {
 	public void validate(Object object, Errors errors) {
 		CardBean bean = (CardBean)object;
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "newPin", "required.pin", "Pin field is necesary");
-//		validatePin(bean.getNewPin(), errors);
-		validatePin(bean.getPin(), errors);
+		validatePin(bean.getNewPin(), errors);
+//		validatePin(bean.getPin(), errors);
 
 	}
 

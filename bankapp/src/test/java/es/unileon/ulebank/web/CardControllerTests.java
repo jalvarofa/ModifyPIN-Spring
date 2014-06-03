@@ -64,7 +64,7 @@ public class CardControllerTests {
     }
     
     @Test (expected = NullPointerException.class)
-    public void testShowCardViewFail() throws Exception{
+    public void testShowCardViewFailNull() throws Exception{
     	testCard = null;
         CardController controller = new CardController();
         controller.setCard(testCard);
@@ -86,7 +86,7 @@ public class CardControllerTests {
 	}
 	
 	@Test (expected = NullPointerException.class)
-	public void testShowModifyPinGetFail() {
+	public void testShowModifyPinGetFailNull() {
 		CardController controller = null;
         controller.setCard(testCard);
         ModelAndView modelAndView = controller.showModifyPinGet();
