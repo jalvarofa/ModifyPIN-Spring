@@ -25,7 +25,7 @@ public class CardController {
     protected final Log logger = LogFactory.getLog(getClass());
     
     private Card card;
-    
+     
     @Autowired
     private CardManager cardManager;
 
